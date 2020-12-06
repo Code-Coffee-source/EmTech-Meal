@@ -18,9 +18,9 @@
 divider = "--------------------------------------------------------"
 
 # orders dictionary
-orders_dict = {"main": "",
-               "sides": "",
-               "drinks": ""}
+orders_dict = {"Main": "",
+               "Side": "",
+               "Drink": ""}
 
 
 def cancel():
@@ -35,17 +35,17 @@ def main():
     """
 
     # dictionary containing main dish options
-    main_options = {"1": ["Steak (P 900.00)", 900],
-                    "2": ["Salmon (P 850.00)", 850],
-                    "3": ["Chicken (P 300.00)", 300],
+    main_options = {"1": ["Steak", format(900.00, '.2f')],
+                    "2": ["Salmon", format(850.00, '.2f')],
+                    "3": ["Chicken", format(300.00, '.2f')],
                     "4": ["Cancel", cancel]}
 
     # prints the menu
     for i in main_options.keys():
-        print(f"[{i}] {main_options[i][0]}")
+        print(f"[{i}] {main_options[i][0]} (P {main_options[i][1]})" if i != "4" else f"[{i}] {main_options[i][0]}")
 
     # get selection from user (returns a list)
-    selection = main_options[input("Which dish would you select? ").strip()]
+    selection = main_options[input("Which dish would you like? ").strip()]
     if selection[1] is cancel:
         cancel()
 
@@ -53,19 +53,110 @@ def main():
     amount = input("How many would you like? ")
 
     # Records the inputs and updates orders_dict
-    main_dish = {"main": [selection[0], selection[1]*int(amount)]}
+    main_dish = {"Main": [selection[0], selection[1], amount, format(float(selection[1])*int(amount), '.2f')]}
     orders_dict.update(main_dish)
-
-
 
     # returns user to main menu
     cancel()
 
 
+def sides():
+    """Function for creating the side dishes menu for selecting side dishes .
+    Uses the sides_options dictionary
+    """
+
+    # dictionary containing side dish options
+    sides_options = {"1": ["Baked Potato", format(80.00, '.2f')],
+                     "2": ["Mashed Potato", format(75.00, '.2f')],
+                     "3": ["Steamed Vegetables", format(50.00, '.2f')],
+                     "4": ["Cancel", cancel]}
+
+    # prints the menu
+    for i in sides_options.keys():
+        print(f"[{i}] {sides_options[i][0]} (P {sides_options[i][1]})" if i != "4" else f"[{i}] {sides_options[i][0]}")
+
+    # get selection from user (returns a list)
+    selection = sides_options[input("Which dish would you like? ").strip()]
+    if selection[1] is cancel:
+        cancel()
+
+    # get amount from user
+    amount = input("How many would you like? ")
+
+    # Records the inputs and updates orders_dict
+    sides_dish = {"Side": [selection[0], selection[1], amount, format(float(selection[1])*int(amount), '.2f')]}
+    orders_dict.update(sides_dish)
+
+    # returns user to main menu
+    cancel()
+
+
+def drinks():
+    """Function for creating the drinks menu for selecting drinks .
+    Uses the drinks_options dictionary
+    """
+
+    # dictionary containing side dish options
+    drink_options = {"1": ["Iced Tea", format(55.00, '.2f')],
+                     "2": ["Root Beer", format(60.00, '.2f')],
+                     "3": ["Water", format(20.00, '.2f')],
+                     "4": ["Cancel", cancel]}
+
+    # prints the menu
+    for i in drink_options.keys():
+        print(f"[{i}] {drink_options[i][0]} (P {drink_options[i][1]})" if i != "4" else f"[{i}] {drink_options[i][0]}")
+
+    # get selection from user (returns a list)
+    selection = drink_options[input("Which drink would you like? ").strip()]
+    if selection[1] is cancel:
+        cancel()
+
+    # get amount from user
+    amount = input("How many would you like? ")
+
+    # Records the inputs and updates orders_dict
+    drink_select = {"Drink": [selection[0], selection[1], amount, format(float(selection[1])*int(amount), '.2f')]}
+    orders_dict.update(drink_select)
+
+    # returns user to main menu
+    cancel()
+
+
+def checkout():
+    """Function for calculating total and checking out.
+    Uses the orders_dict dictionary
+    """
+    total = format(float(orders_dict["Main"][3])+float(orders_dict["Side"][3])+float(orders_dict["Drink"][3]), '.2f')
+
+    # Prints the values in the orders_dict to the checkout format
+    for i in orders_dict.keys():
+        print(f'{i}  - {orders_dict[i][0]} - P{orders_dict[i][1]} x {orders_dict[i][2]} = {orders_dict[i][3]}')
+
+    print(divider)
+
+    print(f'TOTAL       P{total}')
+    payment = float(input("Enter amount to be paid: ").strip())
+
+    # Discount triggers if Chicken-Mash-Tea combo was ordered
+    if orders_dict["Main"][0] == "Chicken":
+        if orders_dict["Side"][0] == "Mashed Potato":
+            if orders_dict["Drink"][0] == "Iced Tea":
+                print('Chicken Mash Tea Combo gives 10% discount')
+                discount = format(0.10 * float(total), '.2f')
+                discounted = format(float(total) - float(discount), '.2f')
+                print(f'DISCOUNT    P{discount}')
+                print(f'DISCOUNTED  P{discounted}')
+                total = discounted
+
+    change = payment - float(total)
+    change_f = format(change, '.2f')
+    print(f'CHANGE      P{change_f}')
+
+    close_program()
+
 
 def close_program():
     # closes the program when called
-
 
     # print dict (debugging only remove when finished)
     print(orders_dict)
@@ -81,9 +172,9 @@ def main_menu():
     # dictionary containing main menu options
     # TODO: implement sides(), drinks(), and checkout() functions
     main_menu_options = {"1": ["Mains", main],
-                         "2": ["Sides", "sides()"],
-                         "3": ["Drinks", "drinks()"],
-                         "4": ["Check-out", "checkout()"],
+                         "2": ["Sides", sides],
+                         "3": ["Drinks", drinks],
+                         "4": ["Check-out", checkout],
                          "5": ["Exit", close_program]}
 
     print("Welcome! Please select an Option!")
