@@ -16,13 +16,22 @@
 # creates a divider for better UX
 divider = "--------------------------------------------------------"
 
+def main():
+    main_options = {"1": ["Steak (P 900.00)", "900"],
+                    "2": ["Salmon (P 850.00)", "850"],
+                    "3": ["Chicken (P 300.00)", "300"],
+                    "4": ["Cancel", "cancel()"]}
+
+    for i in main_options.keys():
+        print(f"[{i}] {main_options[i][0]}")
+
+    return main_options[input("Which dish would you select? ").strip()][1]
 
 def close_program():
     # closes the program
     global exit_program
     exit_program = True
     return ""
-
 
 def main_menu():
     """Function for creating the main_menu for selecting main, side, dish, checkout and exit.
@@ -31,7 +40,7 @@ def main_menu():
 
     # dictionary containing main menu options
     # TODO: implement main(), sides(), drinks(), and checkout() functions
-    main_menu_options = {"1": ["Mains", "main()"],
+    main_menu_options = {"1": ["Mains", main()],
                          "2": ["Sides", "sides()"],
                          "3": ["Drinks", "drinks()"],
                          "4": ["Check-out", "checkout()"],
@@ -49,7 +58,6 @@ def main_menu():
     # Prompts the user to select an option and runs the corresponding function
     # strip() removes spaces that may have been added by the user
     return main_menu_options[input("What will you select? ").strip()][1]
-
 
 def run_main_menu():
     # keeps the program running when in the main menu
