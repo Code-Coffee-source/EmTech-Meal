@@ -13,25 +13,65 @@
     Use time or timeit modules for speed and memory_profiler for memory usage
 """
 
+
 # creates a divider for better UX
 divider = "--------------------------------------------------------"
 
-def main():
-    main_options = {"1": ["Steak (P 900.00)", "900"],
-                    "2": ["Salmon (P 850.00)", "850"],
-                    "3": ["Chicken (P 300.00)", "300"],
-                    "4": ["Cancel", "cancel()"]}
+# orders dictionary
+orders_dict = {"main": "",
+               "sides": "",
+               "drinks": ""}
 
+
+def cancel():
+    # returns to the main menu when called
+    print(divider)
+    run_main_menu()
+
+
+def main():
+    """Function for creating the main dish menu for selecting main dishes .
+    Uses the main_options dictionary
+    """
+
+    # dictionary containing main dish options
+    main_options = {"1": ["Steak (P 900.00)", 900],
+                    "2": ["Salmon (P 850.00)", 850],
+                    "3": ["Chicken (P 300.00)", 300],
+                    "4": ["Cancel", cancel]}
+
+    # prints the menu
     for i in main_options.keys():
         print(f"[{i}] {main_options[i][0]}")
 
-    return main_options[input("Which dish would you select? ").strip()][1]
+    # get selection from user (returns a list)
+    selection = main_options[input("Which dish would you select? ").strip()]
+    if selection[1] is cancel:
+        cancel()
+
+    # get amount from user
+    amount = input("How many would you like? ")
+
+    # Records the inputs and updates orders_dict
+    main_dish = {"main": [selection[0], selection[1]*int(amount)]}
+    orders_dict.update(main_dish)
+
+
+
+    # returns user to main menu
+    cancel()
+
+
 
 def close_program():
-    # closes the program
-    global exit_program
-    exit_program = True
-    return ""
+    # closes the program when called
+
+
+    # print dict (debugging only remove when finished)
+    print(orders_dict)
+
+    exit()
+
 
 def main_menu():
     """Function for creating the main_menu for selecting main, side, dish, checkout and exit.
@@ -39,12 +79,12 @@ def main_menu():
     """
 
     # dictionary containing main menu options
-    # TODO: implement main(), sides(), drinks(), and checkout() functions
-    main_menu_options = {"1": ["Mains", main()],
+    # TODO: implement sides(), drinks(), and checkout() functions
+    main_menu_options = {"1": ["Mains", main],
                          "2": ["Sides", "sides()"],
                          "3": ["Drinks", "drinks()"],
                          "4": ["Check-out", "checkout()"],
-                         "5": ["Exit", close_program()]}
+                         "5": ["Exit", close_program]}
 
     print("Welcome! Please select an Option!")
 
@@ -57,7 +97,9 @@ def main_menu():
 
     # Prompts the user to select an option and runs the corresponding function
     # strip() removes spaces that may have been added by the user
-    return main_menu_options[input("What will you select? ").strip()][1]
+
+    main_menu_options[input("What will you select? ").strip()][1]()
+
 
 def run_main_menu():
     # keeps the program running when in the main menu
@@ -70,10 +112,6 @@ def run_main_menu():
         run_main_menu()
 
 
-# sets exit program to false to avoid prematurely calling exit()
-exit_program = False
-if exit_program:
-    exit()
-
-# runs the program from the main menu
-run_main_menu()
+if __name__ == "__main__":
+    # runs the program from the main menu
+    run_main_menu()
