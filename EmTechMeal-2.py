@@ -1,68 +1,166 @@
+"""
+DOCUMENTATION
+
+Problem Breakdown
+1. Display content on screen showing options and taking input
+2. Display orders and ask for payment on checkout (allow for incomplete orders and add discount function)
+3. Display receipt: contains order/s, total, change and, if applicable, discount
+
+Additional concepts used outside class
+1. List and Dictionary data types - used to store values and options
+2. Format function - used to format number values to always show 2 decimal values
+3. Functions (function calls and parameters) - used on repeated lines of code allowing for smaller number of lines
+4. Try-except - used to catch errors instead of if statements
+5. F-strings (another type of concatenation) - fastest string concatenation method
+6. Exit function used to close program when close_program() is called
+7. List Comprehension - way of making a list from iterables in one line
+8. str.upper(), str.capitalize(), str.strip() - string manipulation methods; convert to uppercase,
+    convert to sentence case, remove whitespace at start and end
+9. Ternary operators - one-line if-else statements (reduces lines of code)
+10. \n - escape character for new line similar to html <\br>
+
+Sources
+1. W3Schools.com
+2. StackOverflow.com
+3. Prior python programming experience
+
+Usage
+1. Users will be brought to the main menu.
+2. If users chooses options 1-3 they will be brought to the respective option select menu (see # 6-7.)
+2. Choosing option 4 in the main menu will bring users to the check out menu (see #8)
+5. Choosing option 5 in the main menu ask for user input before closing the program
+6. Selecting an order within the items presented will ask for the amount of the order
+7. Selecting cancel will return the user to the main menu
+8. The checkout menu will originally display the orders made and the total then ask if they will be paying
+9. *Inputting "y or yes" (and any of the spelling changes) into the prompt will proceed to payment (see #12)
+10. *Inputting "n or no" (and any of the spelling changes) into the prompt will return to the main menu
+11. *Inputting anything else will ask the user to "respond accordingly" and repeat the prompt
+12. Payment prompt will display the total amount input
+13. *Paying an amount less than total will redisplay the payment prompt and total
+14. *Inputting anything other than integers will redisplay the payment prompt
+15. Successful payment (equal to or greater than total) will print receipt and ask for input before closing
+Note: Items with * are in a loop and the same rules apply per loop
+
+Features
+1. Catches KeyErrors when users input anything outside the presented options (main menu and options menu)
+2. Easy to add items into dictionaries making it very dynamic and portable
+3. Dictionaries follow the same format so other option menus can be made making use of the same format
+4. Users are guided through every procedure and fallbacks are in place for error handling in the case of missed input
+5. The receipt also has a nice UI to make the Command Line Interface CLI look cleaner when the program is running
+6. Clicking on file icon in explorer also works, no need to call from CLI (cmd or bash) or enter python interface
+
+"""
+
 divider = "--------------------------------------------------"
-default_orders = [None, None, None, format(00.00, '.2f')]
-orders_dict = {"main dish": default_orders,
-               "side dish": default_orders,
-               "drink": default_orders}
+default_order_format = [None, None, None, format(00.00, '.2f')]
+orders_dict = {"main dish": default_order_format,
+               "side dish": default_order_format,
+               "drink": default_order_format}
 
 
 def close_program():
+    input("|--------Press enter to close the program---------|")
     exit()
 
 
 def check_out():
     """Function for calculating total and checking out.
         Uses the orders_dict and combo_meals dictionary
-        """
+    """
 
     combo_meals = {"Chicken Mashed Potato Iced Tea": ["Chicken Mash Tea", format(.10, '.2f')],
                    "Steak Steamed Vegetables Root Beer": ["Steak Veg Beer", format(.15, '.2f')]
                    }
 
-    total = format(float(orders_dict["main dish"][3]) + float(orders_dict["side dish"][3]) + float(orders_dict["drink"][3]),
-                   '.2f')
+    total = format(
+        float(orders_dict["main dish"][3]) + float(orders_dict["side dish"][3]) + float(orders_dict["drink"][3]),
+        '.2f')
 
-    # Prints the values in the orders_dict to the checkout format
+    print(divider)
+
+    # Prints the values in the orders_dict to the receipt format
     for i in orders_dict.keys():
         if orders_dict[i][0] is not None:
-            print(f'{i}  - {orders_dict[i][0]} - P{orders_dict[i][1]} x {orders_dict[i][2]} = {orders_dict[i][3]}')
+            print(f'{i.capitalize()} -> {orders_dict[i][0]} -> \u20B1 {orders_dict[i][1]} x {orders_dict[i][2]} = \u20B1 {orders_dict[i][3]}')
         else:
-            print(f' No {i} selected')
+            print(f'No {i} selected')
 
     if total != format(0.00, '.2f'):
         print(divider)
-        print(f'TOTAL       P{total}')
-        payment = float(input("Enter amount to be paid: ").strip())
+        print(f'TOTAL       \u20B1 {total}')
+
+        ask_if_pay = True
+        paying = False
+
+        while ask_if_pay:
+
+            pay = input("Proceed to payment? \n"
+                        f"Type 'Y' to pay or 'N' to return to the main menu: ").upper().strip()
+
+            if pay == 'Y' or pay == 'YES':
+                paying = True
+                ask_if_pay = False
+            elif pay == 'N' or pay == 'NO':
+                paying = False
+                ask_if_pay = False
+            else:
+                print(f"{divider} \nPlease respond accordingly \n{divider}")
+
+        # asks user if they will pay. Brings user back to main menu if declined proceed to payment
+        if paying:
+
+            print(f'TOTAL       \u20B1 {total}')
+            payment = float(input("Enter amount to be paid: ").strip())
+
+            while paying:
+                try:
+
+                    while payment < float(total):
+                        print(f"{divider} \nInsufficient amount. Total is \u20B1 {total} ")
+                        payment = float(input(f"Enter amount to be paid: ").strip())
+
+                    paying = False
+                except ValueError:
+                    print(f"{divider} \nPlease enter your payment as numbers \n{divider}")
+        else:
+            create_main_menu()
+
     else:
         print(divider)
-        print('No items selected \n'
-              'Closing program...')
+        print('No items selected \n')
         close_program()
 
-    meal_list = []
 
-    for i in orders_dict:
-        meal_list.append(orders_dict[i][0])
+    change = payment - float(format(float(total), '.2f'))
+    # prints a receipt
+    print(f'{divider} \n'
+          f'                     RECEIPT                      \n'
+          f'{divider}')
 
-    try:
-        str_meal = ' '.join(meal_list)
+    for i in orders_dict.keys():
+        if orders_dict[i][0] is not None:
+            print(f'{orders_dict[i][0]} -> x {orders_dict[i][2]} => \u20B1 {orders_dict[i][3]}')
+        else:
+            print(f'No {i} selected')
 
-        if str_meal in combo_meals.keys():
-            combo_meal = combo_meals[str_meal]
-            discount = format(float(combo_meal[1]) * float(total), '.2f')
-            discounted = format(float(total) - float(discount), '.2f')
-            print(f'{combo_meal[0]} Combo gives {"{:.0%}".format(float(combo_meal[1]))} discount \n'
-                  f'DISCOUNT    P{discount} \n'
-                  f'DISCOUNTED  P{discounted}')
-            total = discounted
+    # uses list comprehension to create a list to counter check against discount values
+    str_meal = ' '.join([orders_dict[i][0] for i in orders_dict if orders_dict[i][0] is not None])
 
-    except TypeError:
-        pass
+    if str_meal in combo_meals.keys():
+        combo_meal = combo_meals[str_meal]
+        discount = format(float(combo_meal[1]) * float(total), '.2f')
+        discounted = format(float(total) - float(discount), '.2f')
+        print(f'{divider} \n'
+              f'{combo_meal[0]} Combo gives {"{:.0%}".format(float(combo_meal[1]))} discount \n'
+              f'DISCOUNT    \u20B1 {total} X {"{:.0%}".format(float(combo_meal[1]))} = \u20B1 {discount} \n'
+              f'DISCOUNTED  \u20B1 {total} -  \u20B1 {discount} = \u20B1 {discounted}')
+        total = discounted
 
-    # Checks for possible combo meals and apply discount
-
-    change = payment - float(total)
-    change_f = format(change, '.2f')
-    print(f'CHANGE      P{change_f}')
+    print(f'{divider} \n'
+          f'TOTAL       \u20B1 {total} \n'
+          f'PAYMENT     \u20B1 {format(payment,".2f") } \n'
+          f'CHANGE      \u20B1 {format(change, ".2f")} \n'
+          f'{divider}')
 
     close_program()
 
@@ -89,52 +187,60 @@ drink_options = {"1": ["Iced Tea", format(55.00, '.2f')],
                  "4": ["Cancel", cancel],
                  "type": "drink"}
 
-main_menu_options = {"1": ["main dish", main_dish_options],
-                     "2": ["side dish", side_dish_options],
-                     "3": ["drink", drink_options],
-                     "4": ["check out", check_out],
-                     "5": ["exit", close_program]}
+main_menu_options = {"1": ["main dish", "order main dish", main_dish_options],
+                     "2": ["side dish", "order side dish", side_dish_options],
+                     "3": ["drink", "order drink", drink_options],
+                     "4": ["check out", "checkout order", check_out],
+                     "5": ["exit", "exit program", close_program]}
 
 
 def create_main_menu():
-    print(f'{divider} \n Welcome! Please select an option below. \n {divider}')
+    print(f'{divider} \n Welcome! Please select an option below. \n{divider}')
 
     for i in main_menu_options.keys():
-        print(f'[{i}] {main_menu_options[i][0].capitalize()}')
+        print(f'[{i}] {main_menu_options[i][1].capitalize()}')
 
     try:
-        selection = main_menu_options[input(f"What would you option would you like? ").strip()]
+        selection = main_menu_options[input(f"What would you like to do? ").strip()]
+        create_option_select_menu(selection[2]) if type(selection[2]) is dict else selection[2]()
 
     except KeyError:
         print('Invalid selection')
         create_main_menu()
 
-    create_options_menu(selection[1]) if type(selection[1]) is dict else selection[1]()
 
 
-def create_options_menu(options_dict):
-    add_to_order = lambda x: orders_dict.update(dict([(order_type, x)]))
 
+def create_option_select_menu(options_dict):
     order_type = options_dict['type']
 
-    print(f'{divider} \n Please select a {order_type}. \n {divider}')
+    print(f'{divider} \n Please select a {order_type}. \n{divider}')
 
     for i in options_dict.keys():
         if i != 'type':
             print(f"[{i}] {options_dict[i][0]} P {options_dict[i][1]}" if options_dict[i][
                                                                               0] != 'Cancel' else f"[{i}] {options_dict[i][0]}")
 
-    user_order = options_dict[input("What would you like to order. Press '4' to return to the main menu: ").strip()]
-    amount = int(input(f"Enter the amount: ").strip())
+    # Print "Invalid selection" if input is not in dict
+    try:
 
-    if user_order[0] != 'Cancel':
-        amnt_price = [amount, (float(user_order[1]) * amount)]
+        user_order = options_dict[input("What would you like to order. Press '4' to return to the main menu: ").strip()]
 
-        add_to_order(tuple(user_order + amnt_price))
+        if user_order[0] == 'Cancel':
+            create_main_menu()
+        else:
+            amount = int(input(f"Enter the amount: ").strip())
+            amnt_price = [amount, (float(user_order[1]) * amount)]
+
+            orders_dict.update(dict([(order_type, tuple(user_order + amnt_price))]))
+
+    except KeyError:
+        print("Invalid Selection")
+        create_option_select_menu(options_dict)
 
     create_main_menu()
 
 
-create_main_menu()
-
-print(orders_dict)
+# Code will run from here
+if __name__ == "__main__":
+    create_main_menu()
