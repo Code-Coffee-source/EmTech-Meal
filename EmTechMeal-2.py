@@ -79,11 +79,11 @@ def check_out():
     print(divider)
 
     # Prints the values in the orders_dict to the receipt format
-    for i in orders_dict.keys():
-        if orders_dict[i][0] is not None:
-            print(f'{i.capitalize()} -> {orders_dict[i][0]} -> \u20B1 {orders_dict[i][1]} x {orders_dict[i][2]} = \u20B1 {orders_dict[i][3]}')
+    for order in orders_dict.keys():
+        if orders_dict[order][0] is not None:
+            print(f'{order.capitalize()} -> {orders_dict[order][0]} -> \u20B1 {orders_dict[order][1]} x {orders_dict[order][2]} = \u20B1 {orders_dict[order][3]}')
         else:
-            print(f'No {i} selected')
+            print(f'No {order} selected')
 
     if total != format(0.00, '.2f'):
         print(divider)
@@ -109,19 +109,30 @@ def check_out():
         # asks user if they will pay. Brings user back to main menu if declined proceed to payment
         if paying:
 
+            ask_payment = True
             print(f'TOTAL       \u20B1 {total}')
-            payment = float(input("Enter amount to be paid: ").strip())
+
+            while ask_payment:
+                try:
+                    payment = float(input("Enter amount to be paid: ").strip())
+                    ask_payment = False
+                except ValueError:
+                    print(f"{divider}\n Please enter the amount as a number (ie. 1000)")
+
 
             while paying:
-                try:
 
-                    while payment < float(total):
-                        print(f"{divider} \nInsufficient amount. Total is \u20B1 {total} ")
-                        payment = float(input(f"Enter amount to be paid: ").strip())
+                while payment < float(total):
+                    print(f"{divider} \nInsufficient amount. Total is \u20B1 {total}. "
+                          f"You are missing \u20B1 {format(float(total) - payment, '.2f')}")
 
-                    paying = False
-                except ValueError:
-                    print(f"{divider} \nPlease enter your payment as numbers \n{divider}")
+                    try:
+                        payment += float(input(f"Please add the missing amount: ").strip())
+                    except ValueError:
+                        print(f"{divider}\n Please enter the amount as a number (ie. 1000)")
+
+                paying = False
+
         else:
             create_main_menu()
 
@@ -137,11 +148,11 @@ def check_out():
           f'                     RECEIPT                      \n'
           f'{divider}')
 
-    for i in orders_dict.keys():
-        if orders_dict[i][0] is not None:
-            print(f'{orders_dict[i][0]} -> x {orders_dict[i][2]} => \u20B1 {orders_dict[i][3]}')
+    for order in orders_dict.keys():
+        if orders_dict[order][0] is not None:
+            print(f'{orders_dict[order][0]} -> x {orders_dict[order][2]} => \u20B1 {orders_dict[order][3]}')
         else:
-            print(f'No {i} selected')
+            print(f'No {order} selected')
 
     # uses list comprehension to create a list to counter check against discount values
     str_meal = ' '.join([orders_dict[i][0] for i in orders_dict if orders_dict[i][0] is not None])
@@ -197,8 +208,8 @@ main_menu_options = {"1": ["main dish", "order main dish", main_dish_options],
 def create_main_menu():
     print(f'{divider} \n Welcome! Please select an option below. \n{divider}')
 
-    for i in main_menu_options.keys():
-        print(f'[{i}] {main_menu_options[i][1].capitalize()}')
+    for option in main_menu_options.keys():
+        print(f'[{option}] {main_menu_options[option][1].capitalize()}')
 
     try:
         selection = main_menu_options[input(f"What would you like to do? ").strip()]
@@ -216,10 +227,10 @@ def create_option_select_menu(options_dict):
 
     print(f'{divider} \n Please select a {order_type}. \n{divider}')
 
-    for i in options_dict.keys():
-        if i != 'type':
-            print(f"[{i}] {options_dict[i][0]} P {options_dict[i][1]}" if options_dict[i][
-                                                                              0] != 'Cancel' else f"[{i}] {options_dict[i][0]}")
+    for option in options_dict.keys():
+        if option != 'type':
+            print(f"[{option}] {options_dict[option][0]} P {options_dict[option][1]}" if options_dict[option][
+                                                                              0] != 'Cancel' else f"[{option}] {options_dict[option][0]}")
 
     # Print "Invalid selection" if input is not in dict
     try:
